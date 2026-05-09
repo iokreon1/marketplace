@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-
+use App\Models\Buyer;
+use App\Models\Store;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Traits\UUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,7 +20,7 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = [
+    protected $fillable = [ // field yang bisa diisi, makanya tidak ada id
         'name',
         'email',
         'password',
@@ -46,6 +47,12 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('name', 'like', '%' . $search . '%') // object memanggil method $query->where()
+            ->Orwhere('email', 'like', '%' . $search . '%');
     }
 
     // satu user bisa memiliki satu toko
