@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -7,6 +8,8 @@ use Illuminate\Support\Facades\Route;
 route::apiResource('user', UserController::class); // 'user' itu adalah nanti endpointnya
 Route::get('user/all/paginated', [UserController::class, 'getAllPaginated']); // getAllPaginated adalah nama methodnya 
 
+route::apiResource('store', StoreController::class);
+Route::get('store/all/paginated', [StoreController::class, 'getAllPaginated']);
 // apiResource itu maksudnya seperti ini 
 // Daripada kamu nulis:
 

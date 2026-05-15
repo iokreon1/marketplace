@@ -14,7 +14,7 @@ class UserRepository implements UserRepositoryInterface
         ?int $limit,
         bool $execute,
     ) {
-        $query = User::where(function ($query) use ($search) { // mulai query ke tabel user
+        $query = User::query()->where(function ($query) use ($search) { // mulai query ke tabel user
             if ($search) { // kalau ada search jalankan
                 $query->search($search); // kode ini ada di model User
                                          // contoh: $query->search('wahyu')
