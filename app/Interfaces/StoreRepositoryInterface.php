@@ -17,4 +17,26 @@ interface StoreRepositoryInterface
         ?bool $isVerified,
         ?int $rowPerPage
     );
+
+    public function getById(
+        string $id // kita kirimkan parameter berupa string id, untuk mencari data toko berdasarkan id
+    );
+
+    public function create(
+        array $data
+    );
+
+    public function updateVerifiedStatus(
+        string $id,
+        bool $isVerified
+    );
+
+    public function update(
+        string $id,
+        array $data
+    );
+
+    public function delete(
+        string $id
+    );
 }
