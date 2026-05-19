@@ -20,6 +20,6 @@ class Withdrawal extends Model
 
     public function storeBalance()
     {
-        return $this->belongsTo(StoreBallance::class);
+        return $this->belongsTo(StoreBalance::class);
     }
 }

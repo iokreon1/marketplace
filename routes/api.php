@@ -1,16 +1,20 @@
 <?php
 
+use App\Http\Controllers\StoreBalanceController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-route::apiResource('user', UserController::class); // 'user' itu adalah nanti endpointnya
+Route::apiResource('user', UserController::class); // 'user' itu adalah nanti endpointnya
 Route::get('user/all/paginated', [UserController::class, 'getAllPaginated']); // getAllPaginated adalah nama methodnya 
 
-route::apiResource('store', StoreController::class);
+Route::apiResource('store', StoreController::class);
 Route::get('store/all/paginated', [StoreController::class, 'getAllPaginated']);
 Route::post('store/{id}/verified', [StoreController::class, 'updateVerifiedStatus']);
+
+Route::apiResource('store-balance', StoreBalanceController::class)->except(['store', 'update', 'destroy']); // karena store balance itu cuma bisa diambil datanya, jadi saya except store, update, destroy
+Route::get('store-balance/all/paginated', [StoreBalanceController::class, 'getAllPaginated']);
 
 // apiResource itu maksudnya seperti ini 
 // Daripada kamu nulis:

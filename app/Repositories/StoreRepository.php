@@ -41,7 +41,7 @@ class StoreRepository implements StoreRepositoryInterface
         ?bool $isVerified,
         ?int $rowPerPage
     ) {
-        $query = $this->getAll( // $this->getAll itu memanggil method getAll yang ada di repository ini, untuk menyiapkan querynya dulu
+        $query = $this->getAll( // $this->getAll itu memanggil method getAll milik object StoreRepository ini, untuk menyiapkan querynya dulu
             $search, // kirim nilai $search dari parameter ke method getAll
             $isVerified, // kirim nilai $isVerified dari parameter ke method getAll
             null, // limit tidak dipakai di sini, jadi dikirim null
@@ -78,7 +78,7 @@ class StoreRepository implements StoreRepositoryInterface
             $store->postal_code = $data['postal_code'];
             $store->save();
 
-            $store->storeBallance()->create(['balance' => 0]); // setelah data toko disimpan, kita buat juga data store balance dengan nilai awal 0, ini untuk menyiapkan saldo toko yang nanti bisa diisi ketika ada transaksi masuk 
+            $store->storeBalance()->create(['balance' => 0]); // setelah data toko disimpan, kita buat juga data store balance dengan nilai awal 0, ini untuk menyiapkan saldo toko yang nanti bisa diisi ketika ada transaksi masuk 
 
             DB::commit();
 
@@ -150,7 +150,7 @@ class StoreRepository implements StoreRepositoryInterface
         try {
             $store = Store::find($id); // cari data toko berdasarkan id yang sudah dikirim di parameter
             $store->delete();
-            
+
             DB::commit();
 
             return $store;
