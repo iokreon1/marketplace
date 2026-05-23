@@ -60,7 +60,7 @@ class UserRepository implements UserRepositoryInterface
 
         try {
             $user = new User;
-            $user->name = $data['name'];
+            $user->name = $data['name']; // $user->name, name disini bisa dibaca sebagai nama kolom di tabel users
             $user->email = $data['email'];
             $user->password = bcrypt($data['password']);
             $user->save();

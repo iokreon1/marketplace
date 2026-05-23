@@ -17,7 +17,8 @@ class StoreBalanceResource extends JsonResource
         return [
             'id' => $this->id,
             'store' => new StoreResource($this->store),
-            'balance' => (float) (string) $this->balance, // cast ke string dulu baru ke float untuk menghindari masalah presisi pada angka desimal,
+            'balance' => (float)(string) $this->balance, // cast ke string dulu baru ke float untuk menghindari masalah presisi pada angka desimal,
+            'store_balance_histories' => StoreBalanceHistoryResource::collection($this->whenLoaded('storeBalanceHistories')),
         ];
     }
 }

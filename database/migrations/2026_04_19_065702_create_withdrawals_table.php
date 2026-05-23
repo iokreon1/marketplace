@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('bank_account_name');
             $table->string('bank_account_number');
             $table->string('bank_name');
+            $table->string('proof')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamps();
         });
