@@ -12,6 +12,6 @@ class ResponseHelper
             'success' => $success,
             'message' => $message,
             'data' => $data,
-        ], $statusCode);
+        ], $statusCode, [], JSON_UNESCAPED_SLASHES);
     }
 }

@@ -3,15 +3,16 @@
 namespace App\Models;
 
 use App\Traits\UUID;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    use UUID;
+    use UUID, HasFactory;
 
     protected $fillable = [
         'store_id',
-        'product_categoty_id',
+        'product_category_id',
         'name',
         'slug',
         'description',
@@ -22,8 +23,14 @@ class Product extends Model
     ];
 
     protected $casts = [
-        'price' => 'decimal:2'
+        'price' => 'decimal:2',
+        'weight' => 'decimal:2'
     ];
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('name', 'like', '%' . $search . '%');
+    }
 
     public function store()
     {

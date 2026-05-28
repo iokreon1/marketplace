@@ -16,7 +16,7 @@ class ProductCategoryResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            // 'parent' => new ProductCategoryResource($this->parent), // sementara saya komen, karena bingung 
+            'parent' => new ProductCategoryResource($this->parent), // sementara saya komen, karena bingung 
             'image' => asset('storage/' . $this->image),
             'name' => $this->name,
             'slug' => $this->slug,
