@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Interfaces\BuyerRepositoryInterface;
 use App\Interfaces\ProductCategoryRepositoryInterface;
 use App\Interfaces\ProductRepositoryInterface;
+use App\Interfaces\ProductReviewRepositoryInterface;
 use App\Interfaces\StoreBalanceHistoryRepositoryInterface;
 use App\Interfaces\StoreBalanceRepositoryInterface;
 use App\Interfaces\StoreRepositoryInterface;
@@ -22,6 +23,7 @@ use App\Repositories\UserRepository;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\TransactionRepository;
 use App\Interfaces\TransactionRepositoryInterface;
+use App\Repositories\ProductReviewRepository;
 use App\Repositories\TransactionDetailRepository;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -41,6 +43,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
         $this->app->bind(TransactionRepositoryInterface::class, TransactionRepository::class);
         $this->app->bind(TransactionDetailRepositoryInterface::class, TransactionDetailRepository::class);
+        $this->app->bind(ProductReviewRepositoryInterface::class, ProductReviewRepository::class);
     }
 
     /**
