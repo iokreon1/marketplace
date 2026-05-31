@@ -16,7 +16,6 @@ class ProductReviewResource extends JsonResource
     {
         return [
             'transaction' => new TransactionResource($this->transaction),
-            'product' => new ProductResource($this->product),
             'rating' => $this->rating,
             'review' => $this->review
         ];
