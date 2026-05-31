@@ -17,7 +17,7 @@ class TransactionUpdateRequest extends FormRequest
         return [
             'tracking_number' => 'nullable|string',
             'delivery_proof' => 'nullable|image|mimes:png,jpg',
-            'delivery_status' => 'required|in:processing,delivery,completed'
+            'delivery_status' => 'required|in:processing,delivering,completed'
         ];
     }
 

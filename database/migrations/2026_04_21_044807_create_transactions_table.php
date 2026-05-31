@@ -30,7 +30,7 @@ return new class extends Migration
             $table->enum('delivery_status', ['pending', 'processing', 'delivering', 'completed'])->default('pending');
             $table->decimal('tax', 26, 2);
             $table->decimal('grand_total', 26, 2);
-            $table->enum('payment_Status', ['unpaid', 'paid'])->default('unpaid');
+            $table->enum('payment_status', ['unpaid', 'paid'])->default('unpaid');
             $table->timestamps();
         });
     }

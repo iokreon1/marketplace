@@ -29,6 +29,11 @@ class Transaction extends Model
         'payment_status',
     ];
 
+    protected $attributes = [
+        'payment_status' => 'unpaid',
+        'delivery_status' => 'pending',
+    ];
+
     protected $casts = [
         'shipping_cost' => 'decimal:2',
         'tax' => 'decimal:2',

@@ -89,14 +89,14 @@ class TransactionRepository implements TransactionRepositoryInterface
 
             $transactionDetails = [];
 
-            foreach ($data['products'] as $item) {
-                $detail = $transactionDetailRepository->create([
+            foreach ($data['products'] as $transactionDetail) {
+                $transactionDetail = $transactionDetailRepository->create([
                     'transaction_id' => $transaction->id,
-                    'product_id' => $item['product_id'],
-                    'qty' => $item['qty']
+                    'product_id' => $transactionDetail['product_id'],
+                    'qty' => $transactionDetail['qty']
                 ]);
 
-                $transactionDetails[] = $detail;
+                $transactionDetails[] = $transactionDetail;
             }
 
             $subtotal = array_reduce($transactionDetails, function ($carry, $item) {
