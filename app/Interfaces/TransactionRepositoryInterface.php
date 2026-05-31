@@ -31,4 +31,8 @@ interface TransactionRepositoryInterface
         string $id,
         array $data
     );
+
+    public function delete(
+        string $id
+    );
 }

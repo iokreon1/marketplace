@@ -142,7 +142,25 @@ class TransactionRepository implements TransactionRepositoryInterface
         }
     }
 
-    #[Override]
+    public function delete(
+        string $id
+    ) {
+        DB::beginTransaction();
+        
+        try {
+            $transaction = Transaction::find($id);
+            $transaction->delete();
+
+            DB::commit();
+
+            return $transaction;
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            throw new Exception($e->getMessage());
+        }
+    }
+
     public function updateStatus(
         string $id, 
         array $data
