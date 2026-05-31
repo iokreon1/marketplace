@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->string('code')->unique();
             $table->uuid('buyer_id');
             $table->foreign('buyer_id')->references('id')->on('buyers')->onDelete('cascade');
             $table->uuid('store_id');
@@ -25,6 +26,11 @@ return new class extends Migration
             $table->string('shipping_type');
             $table->decimal('shipping_cost', 26, 2);
             $table->string('tracking_number')->nullable();
+            $table->string('delivery_proof')->nullable();
+            $table->enum('delivery_status', ['pending', 'processing', 'delivering', 'completed'])->default('pending');
+            $table->decimal('tax', 26, 2);
+            $table->decimal('grand_total', 26, 2);
+            $table->enum('payment_Status', ['unpaid', 'paid'])->default('unpaid');
             $table->timestamps();
         });
     }

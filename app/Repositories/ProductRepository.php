@@ -32,7 +32,7 @@ class ProductRepository implements ProductRepositoryInterface
         }
 
         if ($execute) {
-            return $query -> get(); 
+            return $query->get(); 
         }
         return $query;
     }

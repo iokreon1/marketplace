@@ -31,7 +31,7 @@ class StoreRepository implements StoreRepositoryInterface
         }
 
         if ($execute) { // kalau $execute bernilai true, jalankan querynya dan kembalikan hasilnya
-            return $query -> get(); // jalankan querynya dan kembalikan hasilnya sebagai collection (data nyata)
+            return $query->get(); // jalankan querynya dan kembalikan hasilnya sebagai collection (data nyata)
         }          
         return $query; // kalau $execute bernilai false, kembalikan querynya saja tanpa menjalankannya
     }

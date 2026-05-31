@@ -32,7 +32,7 @@ class ProductCategoryRepository implements ProductCategoryRepositoryInterface
         }
 
         if ($execute) {
-            return $query -> get(); 
+            return $query->get(); 
         }
         return $query;
     }

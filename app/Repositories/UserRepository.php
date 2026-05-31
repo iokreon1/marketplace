@@ -26,7 +26,7 @@ class UserRepository implements UserRepositoryInterface
         }
 
         if ($execute) { // kalau true
-            return $query -> get(); // hasil dijalankan hasilnya collection (data nyata)
+            return $query->get(); // hasil dijalankan hasilnya collection (data nyata)
         }
                         // kalau false
         return $query; // belum dijalankan masih query builder

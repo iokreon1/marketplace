@@ -26,7 +26,7 @@ class BuyerRepository implements BuyerRepositoryInterface
         }
 
         if ($execute) { 
-            return $query -> get(); 
+            return $query->get(); 
         }
         return $query; 
     }
