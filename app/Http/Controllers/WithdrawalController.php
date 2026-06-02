@@ -10,14 +10,27 @@ use App\Http\Resources\WithdrawalResource;
 use App\Interfaces\WithdrawalRepositoryInterface;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Spatie\Permission\Middleware\PermissionMiddleware;
 
-class WithdrawalController extends Controller
+class WithdrawalController extends Controller implements HasMiddleware
 {
     private WithdrawalRepositoryInterface $withdrawalRepository;
 
     public function __construct(WithdrawalRepositoryInterface $withdrawalRepository)
     {
         $this->withdrawalRepository = $withdrawalRepository;
+    }
+
+    public static function middleware()
+    {
+        return [
+            new Middleware(PermissionMiddleware::using(['withdrawal-list|withdrawal-create|withdrawal-edit|withdrawal-delete']), only: ['index', 'getAllPagianted', 'show']),
+            new Middleware(PermissionMiddleware::using(['withdrawal-create']), only: ['store']),
+            new Middleware(PermissionMiddleware::using(['withdrawal-edit']), only: ['update']),
+            new Middleware(PermissionMiddleware::using(['withdrawal-delete']), only: ['destroy']),
+        ];
     }
 
     /**

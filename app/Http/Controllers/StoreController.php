@@ -9,8 +9,11 @@ use App\Http\Resources\StoreResource;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\StoreStoreRequest;
 use App\Http\Requests\StoreUpdateRequest;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Spatie\Permission\Middleware\PermissionMiddleware;
 
-class StoreController extends Controller
+class StoreController extends Controller implements HasMiddleware
 {
 
     private StoreRepositoryInterface $storeRepository; // membuat property $storeRepository
@@ -21,6 +24,16 @@ class StoreController extends Controller
         $this->storeRepository = $storeRepository; // $this-> mengakses property $storeRepository
                                                    // kemudian property tersebut kita isi dengan nilai objek dari class StoreRepository 
                                                    // yang dikirimkan laravel melalui parameter $storeRepository di constructor ini
+    }
+
+    public static function middleware()
+    {
+        return [
+            new Middleware(PermissionMiddleware::using(['store-list|store-create|store-edit|store-delete']), only: ['index', 'getAllPagianted', 'show', 'updateVerifiedStatus']),
+            new Middleware(PermissionMiddleware::using(['store-create']), only: ['store']),
+            new Middleware(PermissionMiddleware::using(['store-edit']), only: ['update', 'updateVerifiedStatus']),
+            new Middleware(PermissionMiddleware::using(['store-delete']), only: ['destroy']),
+        ];
     }
 
     /**

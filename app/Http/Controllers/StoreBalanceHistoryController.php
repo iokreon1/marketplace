@@ -9,8 +9,11 @@ use App\Interfaces\StoreBalanceHistoryRepositoryInterface;
 use App\Helpers\ResponseHelper;
 use App\Models\StoreBalanceHistory;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Spatie\Permission\Middleware\PermissionMiddleware;
 
-class StoreBalanceHistoryController extends Controller
+class StoreBalanceHistoryController extends Controller implements HasMiddleware
 {
     private StoreBalanceHistoryRepositoryInterface $storeBalanceHistoryRepository;
 
@@ -18,6 +21,14 @@ class StoreBalanceHistoryController extends Controller
     {
         $this->storeBalanceHistoryRepository = $storeBalanceHistoryRepository;
     }
+
+    public static function middleware()
+    {
+        return [
+            new Middleware(PermissionMiddleware::using(['store-balance-history-list']), only: ['index', 'getAllPagianted', 'show']),
+        ];
+    }
+    
     /**
      * Display a listing of the resource.
      */
@@ -55,7 +66,7 @@ class StoreBalanceHistoryController extends Controller
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }
     }
-    
+
     public function show(string $id)
     {
         try {

@@ -12,14 +12,27 @@ use App\Models\Buyer;
 use App\Repositories\BuyerRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Spatie\Permission\Middleware\PermissionMiddleware;
 
-class BuyerController extends Controller
+class BuyerController extends Controller implements HasMiddleware
 {
     private BuyerRepositoryInterface $buyerRepository;
 
     public function __construct(BuyerRepositoryInterface $buyerRepository)
     {
         $this->buyerRepository = $buyerRepository;
+    }
+
+    public static function middleware()
+    {
+        return [
+            new Middleware(PermissionMiddleware::using(['buyer-list|buyer-create|buyer-edit|buyer-delete']), only: ['index', 'getAllPagianted', 'show']),
+            new Middleware(PermissionMiddleware::using(['buyer-create']), only: ['store']),
+            new Middleware(PermissionMiddleware::using(['buyer-edit']), only: ['update']),
+            new Middleware(PermissionMiddleware::using(['buyer-delete']), only: ['destroy']),
+        ];
     }
 
     /**
