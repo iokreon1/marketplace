@@ -25,7 +25,7 @@ class TransactionController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(PermissionMiddleware::using(['transaction-list|transaction-create|transaction-edit|transaction-delete']), only: ['index', 'getAllPagianted', 'show', 'approve']),
+            new Middleware(PermissionMiddleware::using(['transaction-list|transaction-create|transaction-edit|transaction-delete']), only: ['index', 'getAllPaginated', 'show', 'approve']),
             new Middleware(PermissionMiddleware::using(['transaction-create']), only: ['store']),
             new Middleware(PermissionMiddleware::using(['transaction-edit']), only: ['update', 'approve']),
             new Middleware(PermissionMiddleware::using(['transaction-delete']), only: ['destroy']),

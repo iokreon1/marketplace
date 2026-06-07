@@ -28,7 +28,7 @@ class BuyerController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(PermissionMiddleware::using(['buyer-list|buyer-create|buyer-edit|buyer-delete']), only: ['index', 'getAllPagianted', 'show']),
+            new Middleware(PermissionMiddleware::using(['buyer-list|buyer-create|buyer-edit|buyer-delete']), only: ['index', 'getAllPaginated', 'show']),
             new Middleware(PermissionMiddleware::using(['buyer-create']), only: ['store']),
             new Middleware(PermissionMiddleware::using(['buyer-edit']), only: ['update']),
             new Middleware(PermissionMiddleware::using(['buyer-delete']), only: ['destroy']),

@@ -25,7 +25,7 @@ class StoreBalanceHistoryController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(PermissionMiddleware::using(['store-balance-history-list']), only: ['index', 'getAllPagianted', 'show']),
+            new Middleware(PermissionMiddleware::using(['store-balance-history-list']), only: ['index', 'getAllPaginated', 'show']),
         ];
     }
     

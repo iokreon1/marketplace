@@ -25,7 +25,6 @@ class ProductController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(PermissionMiddleware::using(['product-list|product-create|product-edit|product-delete']), only: ['index', 'getAllPagianted', 'show', 'showBySlug']),
             new Middleware(PermissionMiddleware::using(['product-create']), only: ['store']),
             new Middleware(PermissionMiddleware::using(['product-edit']), only: ['update']),
             new Middleware(PermissionMiddleware::using(['product-delete']), only: ['destroy']),
@@ -41,7 +40,9 @@ class ProductController extends Controller implements HasMiddleware
             $products = $this->productRepository->getAll( 
                 $request->search, 
                 $request->product_category_id,
+                $request->store_id,
                 $request->limit, 
+                $request->boolean('random'),
                 true 
             );
 
@@ -56,6 +57,8 @@ class ProductController extends Controller implements HasMiddleware
         $request = $request->validate([
             'search' => 'nullable|string',
             'product_category_id' => 'nullable|exists:product_categories,id',
+            'store_id' => 'nullable|exists:stores,id',
+            'random' => 'nullable|boolean',
             'row_per_page' => 'required|integer'
         ]);
 
@@ -63,6 +66,8 @@ class ProductController extends Controller implements HasMiddleware
             $products = $this->productRepository->getAllPaginated(
                 $request['search'] ?? null,
                 $request['product_category_id'] ?? null,
+                $request['store_id'] ?? null,
+                $request['random'] ?? false,
                 $request['row_per_page']
             );
 

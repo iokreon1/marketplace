@@ -7,13 +7,17 @@ interface ProductRepositoryInterface
     public function getAll(
         ?string $search,
         ?string $productCategoryId,
+        ?string $storeId,
         ?int $limit,
+        ?bool $random,
         bool $execute
     );
 
     public function getAllPaginated(
         ?string $search,
         ?string $productCategoryId,
+        ?string $storeId,
+        ?bool $random,
         ?int $rowPerPage
     );
 

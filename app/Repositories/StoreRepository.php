@@ -6,6 +6,7 @@ use App\Interfaces\StoreRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use App\Models\Store;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 
 class StoreRepository implements StoreRepositoryInterface
 {
@@ -18,13 +19,13 @@ class StoreRepository implements StoreRepositoryInterface
         $query = Store::query()->where(function ($query) use ($search, $isVerified) { // penjelasan sintaks ada di docs
             if ($search) { // kalau $search tidak null, jalankan kode di dalamnya / filternya
                 $query->search($search); // filter data berdasarkan kata yang dicari, kode ini ada di model Store
-                                         // contoh: $query->search('wahyu')
+                // contoh: $query->search('wahyu')
             }
 
             if ($isVerified !== null) {
                 $query->where('is_verified', $isVerified);
             }
-        });
+        })->with('user'); ;
 
         if ($limit) { // kalau $limit tidak null, jalankan kode di dalamnya / batasi jumlah data yang diambil 
             $query->take($limit); // ambil data sebanyak $limit, contoh: $query->take(10) -> ambil 10 data aja
@@ -55,9 +56,32 @@ class StoreRepository implements StoreRepositoryInterface
     public function getById(
         string $id
     ) {
-        $query = Store::where('id', $id); // mulai query ke tabel store, dengan kondisi where id = $id, contoh: Store::where ('id', '123')
+        $query = Store::where('id', $id) // mulai query ke tabel store, dengan kondisi where id = $id, contoh: Store::where ('id', '123')
+            ->withCount(['products', 'transactions'])
+            ->with('user');
 
         return $query->first(); // jalankan querynya, tapi karena datanya cuma satu, kita ambil data pertamanya aja
+    }
+
+    public function getByUsername(
+        string $username
+    ) {
+        $query = Store::where('username', $username)
+            ->withCount(['products', 'transactions'])
+            ->with('user');
+
+        return $query->first();
+    }
+
+    public function getByUser()
+    {
+        $user = Auth::user();
+        
+        $query = Store::where('user_id', $user->id)
+            ->withCount(['products', 'transactions'])
+            ->with('user');
+
+        return $query->first();
     }
 
     public function create(

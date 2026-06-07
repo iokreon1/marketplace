@@ -21,7 +21,7 @@ class UserController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(PermissionMiddleware::using(['user-list|user-create|user-edit|user-delete']), only: ['index', 'getAllPagianted', 'show']),
+            new Middleware(PermissionMiddleware::using(['user-list|user-create|user-edit|user-delete']), only: ['index', 'getAllPaginated', 'show']),
             new Middleware(PermissionMiddleware::using(['user-create']), only: ['store']),
             new Middleware(PermissionMiddleware::using(['user-edit']), only: ['update']),
             new Middleware(PermissionMiddleware::using(['user-delete']), only: ['destroy']),

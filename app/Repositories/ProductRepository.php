@@ -14,38 +14,53 @@ class ProductRepository implements ProductRepositoryInterface
     public function getAll(
         ?string $search,
         ?string $productCategoryId,
+        ?string $storeId,
         ?int $limit, 
+        ?bool $random,
         bool $execute
     ) {
-        $query = Product::query()->where(function ($query) use ($search, $productCategoryId) { 
+        $query = Product::query()->where(function ($query) use ($search, $productCategoryId, $storeId) { 
             if ($search) { 
                 $query->search($search); 
+            }
+
+            if ($storeId) {
+                $query->where('store_id', $storeId);
             }
 
             if ($productCategoryId) {
                 $query->where('product_category_id', $productCategoryId);
             }
-        })->with('productImages');
+        })->with(['productCategory', 'productImages', 'productReviews']);
+
+        if (auth()->check() && auth()->user()->hasRole('store')) {
+            $query->where('store_id', auth()->user()->store->id);
+        }
 
         if ($limit) {
             $query->take($limit);
         }
 
-        if ($execute) {
-            return $query->get(); 
+        if ($random) {
+            $query->inRandomOrder(); 
         }
-        return $query;
+
+        return $execute ? $query->get() : $query;
     }
 
     public function getAllPaginated(
         ?string $search,
-        ?string $productCategoryId, 
+        ?string $productCategoryId,
+        ?string $storeId, 
+        ?bool $random,
         ?int $rowPerPage
     ) {
         $query = $this->getAll(
             $search,
             $productCategoryId,
+            $storeId,
             null,
+            $random,
             false
         );
 
@@ -55,7 +70,7 @@ class ProductRepository implements ProductRepositoryInterface
     public function getById(
         string $id
     ) {
-        $query = Product::where('id', $id)->with(['productImages', 'productReviews']);
+        $query = Product::where('id', $id)->with(['store', 'productCategory', 'productImages', 'productReviews']);
 
         return $query->first();
     }
@@ -63,7 +78,7 @@ class ProductRepository implements ProductRepositoryInterface
     public function getBySlug(
         string $slug
     ) {
-        $query = Product::where('slug', $slug)->with(['productImages', 'productReviews']);
+        $query = Product::where('slug', $slug)->with(['store', 'productCategory', 'productImages', 'productReviews']);
 
         return $query->first();
     }

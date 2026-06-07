@@ -12,15 +12,28 @@ class UserResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array // kolom apa saja yang ingin kita tampilkan di response apinya
+    public function toArray(Request $request): array
     {
+        $role = $this->whenLoaded('roles', function () {
+            return $this->roles->first()?->name ?? '-';
+        }, '-');
+
         return [
             'id' => $this->id,
+            'profile_picture' => asset('storage/' . $this->profile_picture),
             'name' => $this->name,
             'email' => $this->email,
-            'role' => $this->roles->first()->name,
-            'permissions' => $this->permissions,
-            'token' => $this->token
+            'role' => $role,
+            'permissions' => $this->whenLoaded('permissions'),
+            'token' => $this->when(isset($this->token), $this->token),
+            'store' => $this->when(
+                $role === 'store',
+                $this->whenLoaded('store', fn() => new StoreResource($this->store))
+            ),
+            'buyer' => $this->when(
+                $role === 'buyer',
+                $this->whenLoaded('buyer', fn() => new BuyerResource($this->buyer))
+            ),
         ];
     }
 }

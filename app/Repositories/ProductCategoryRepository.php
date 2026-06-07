@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Interfaces\ProductCategoryRepositoryInterface;
 use App\Models\ProductCategory;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Override;
@@ -25,15 +26,21 @@ class ProductCategoryRepository implements ProductCategoryRepositoryInterface
             if ($isParent === true) {
                 $query->whereNull('parent_id');
             }
-        });
+        })->withCount(['products', 'childerns'])->with('childerns');
 
         if ($limit) {
             $query->take($limit);
         }
 
         if ($execute) {
-            return $query->get(); 
+            $cacheKey = "categories.all.search_{$search}.isParent_{$isParent}.limit_{$limit}";
+            $cacheDuration = now()->addMinutes(60);
+
+            return Cache::remember($cacheKey, $cacheDuration, function () use ($query) {
+                return $query->get();
+            });
         }
+        
         return $query;
     }
 
