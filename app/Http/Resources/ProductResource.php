@@ -25,6 +25,10 @@ class ProductResource extends JsonResource
             'price' => (float) (string) $this->price,
             'weight' => (float) (string) $this->weight,
             'stock' => $this->stock,
+            'created_at' => $this->created_at,
+            'sold_count' => (int) $this->transactionDetails()->whereHas('transaction', function ($query) {
+                $query->where('payment_status', 'paid');
+            })->sum('qty'),
             'product_images' => ProductImageResource::collection($this->whenLoaded('productImages')),
             'product_reviews' => ProductReviewResource::collection($this->whenLoaded('productReviews'))
         ];

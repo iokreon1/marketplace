@@ -23,7 +23,17 @@ class TransactionRepository implements TransactionRepositoryInterface
             if ($search) { 
                 $query->search($search); 
             }
-        });
+        })->with(['buyer.user', 'store.user', 'transactionDetails']);
+
+        if (auth()->check()) {
+            if (auth()->user()->hasRole('store')) {
+                $store = auth()->user()->store;
+                $query->where('store_id', $store ? $store->id : '00000000-0000-0000-0000-000000000000');
+            } elseif (auth()->user()->hasRole('buyer')) {
+                $buyer = auth()->user()->buyer;
+                $query->where('buyer_id', $buyer ? $buyer->id : '00000000-0000-0000-0000-000000000000');
+            }
+        }
 
         if ($limit) {
             $query->take($limit);
@@ -46,16 +56,13 @@ class TransactionRepository implements TransactionRepositoryInterface
         );
 
         return $query->paginate($rowPerPage);
-    }
-
-    public function getById(
+    }    public function getById(
         string $id
     ) {
-        $query = Transaction::where('id', $id);
+        $query = Transaction::where('id', $id)->with(['buyer.user', 'store.user', 'transactionDetails.product.productImages', 'transactionDetails.product.productCategory']);
 
         return $query->first();
     }
-
     public function getByCode(
         string $code
     ) {

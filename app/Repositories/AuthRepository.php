@@ -33,6 +33,8 @@ class AuthRepository implements AuthRepositoryInterface
             }
 
             $user->token = $user->createToken('auth_token')->plainTextToken;
+            $user->load('roles', 'buyer', 'store');
+            $user->permissions = $user->roles->flatMap->permissions->pluck('name');
 
             DB::commit();
 
@@ -57,6 +59,8 @@ class AuthRepository implements AuthRepositoryInterface
 
             $user = Auth::user(); // Ambil data user yang sudah terautentikasi
             $user->token = $user->createToken('auth_token')->plainTextToken; // Buat token baru untuk user tersebut
+            $user->load('roles', 'buyer', 'store');
+            $user->permissions = $user->roles->flatMap->permissions->pluck('name');
 
             DB::commit();
 
@@ -78,6 +82,7 @@ class AuthRepository implements AuthRepositoryInterface
             }
 
             $user = Auth::user();
+            $user->load('roles', 'buyer', 'store');
             $user->permissions = $user->roles->flatMap->permissions->pluck('name');
 
             DB::commit();

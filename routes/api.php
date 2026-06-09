@@ -11,11 +11,13 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WithdrawalController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('me', [AuthController::class, 'me']);
     Route::post('logout', [AuthController::class, 'logout']);
+    Route::get('dashboard', [DashboardController::class, 'index']);
 
     Route::apiResource('user', UserController::class); // 'user' itu adalah nanti endpointnya
     Route::get('user/all/paginated', [UserController::class, 'getAllPaginated']); // getAllPaginated adalah nama methodnya 
@@ -23,6 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('store', StoreController::class);
     Route::get('store/all/paginated', [StoreController::class, 'getAllPaginated']);
     Route::post('store/{id}/verified', [StoreController::class, 'updateVerifiedStatus']);
+    Route::get('my-store', [StoreController::class, 'myStore']);
 
     Route::apiResource('store-balance', StoreBalanceController::class)->except(['store', 'update', 'destroy']); // karena store balance itu cuma bisa diambil datanya, jadi saya except store, update, destroy
     Route::get('store-balance/all/paginated', [StoreBalanceController::class, 'getAllPaginated']);
@@ -48,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('transaction', TransactionController::class);
     Route::get('transaction/all/paginated', [TransactionController::class, 'getAllPaginated']);
     Route::get('transaction/code/{code}', [TransactionController::class, 'showByCode']);
+    Route::post('transaction/{id}/simulate-payment', [TransactionController::class, 'simulatePayment']);
 
     Route::post('product-review', [ProductReviewController::class, 'store']);
 });
@@ -62,6 +66,8 @@ Route::get('product/slug/{slug}', [ProductController::class, 'showBySlug']);
 
 Route::get('store', [StoreController::class, 'index']);
 Route::get('store/{store}', [StoreController::class, 'show']);
+
+Route::post('midtrans-callback', [TransactionController::class, 'midtransCallback']);
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);

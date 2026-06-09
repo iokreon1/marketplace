@@ -26,6 +26,7 @@ class StoreResource extends JsonResource
             'address' => $this->address,
             'postal_code' => $this->postal_code,
             'is_verified' => $this->is_verified,
+            'created_at' => $this->created_at,
             'product_count' => $this->when(isset($this->products_count), $this->products_count),
             'transaction_count' => $this->when(isset($this->transactions_count), $this->transactions_count),
         ];

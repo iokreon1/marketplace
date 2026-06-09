@@ -33,7 +33,8 @@ class TransactionResource extends JsonResource
             'grand_total' => (float)(string) $this->grand_total,
             'payment_status' => $this->payment_status,
             'snap_token' => $this->snap_token,
-            'transaction_detail' => TransactionDetailResource::collection($this->transactionDetails)
+            'created_at' => $this->created_at,
+            'transaction_details' => TransactionDetailResource::collection($this->transactionDetails)
         ];
     }
 }

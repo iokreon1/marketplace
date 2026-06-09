@@ -39,4 +39,10 @@ interface StoreRepositoryInterface
     public function delete(
         string $id
     );
+
+    public function getByUser();
+
+    public function getByUsername(
+        string $username
+    );
 }

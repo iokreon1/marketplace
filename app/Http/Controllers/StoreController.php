@@ -178,4 +178,19 @@ class StoreController extends Controller implements HasMiddleware
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }
     }
+
+    public function myStore()
+    {
+        try {
+            $store = $this->storeRepository->getByUser();
+
+            if (!$store) {
+                return ResponseHelper::jsonResponse(true, 'Data toko tidak ditemukan', null, 200);
+            }
+
+            return ResponseHelper::jsonResponse(true, 'Data toko berhasil diambil', new StoreResource($store), 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
+    }
 }

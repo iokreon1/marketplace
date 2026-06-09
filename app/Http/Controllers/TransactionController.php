@@ -27,7 +27,7 @@ class TransactionController extends Controller implements HasMiddleware
         return [
             new Middleware(PermissionMiddleware::using(['transaction-list|transaction-create|transaction-edit|transaction-delete']), only: ['index', 'getAllPaginated', 'show', 'approve']),
             new Middleware(PermissionMiddleware::using(['transaction-create']), only: ['store']),
-            new Middleware(PermissionMiddleware::using(['transaction-edit']), only: ['update', 'approve']),
+            new Middleware(PermissionMiddleware::using(['transaction-edit']), only: ['approve']),
             new Middleware(PermissionMiddleware::using(['transaction-delete']), only: ['destroy']),
         ];
     }
@@ -133,6 +133,26 @@ class TransactionController extends Controller implements HasMiddleware
                 return ResponseHelper::jsonResponse(true, 'Data transaksi tidak ditemukan', null, 404);
             }
 
+            $user = auth()->user();
+            if ($user->hasRole('admin')) {
+                // Admin can update
+            } elseif ($user->hasRole('store')) {
+                $store = $user->store;
+                if (!$store || $transaction->store_id !== $store->id) {
+                    return ResponseHelper::jsonResponse(false, 'Unauthorized', null, 403);
+                }
+            } elseif ($user->hasRole('buyer')) {
+                $buyer = $user->buyer;
+                if (!$buyer || $transaction->buyer_id !== $buyer->id) {
+                    return ResponseHelper::jsonResponse(false, 'Unauthorized', null, 403);
+                }
+                if (isset($request['delivery_status']) && $request['delivery_status'] !== 'completed') {
+                    return ResponseHelper::jsonResponse(false, 'Pembeli hanya boleh menandai transaksi sebagai selesai', null, 403);
+                }
+            } else {
+                return ResponseHelper::jsonResponse(false, 'Unauthorized', null, 403);
+            }
+
             $transaction = $this->transactionRepository->updateStatus($id, $request);
 
             return ResponseHelper::jsonResponse(true, 'Data transaksi berhasil diperbarui', new TransactionResource($transaction), 200);
@@ -156,6 +176,82 @@ class TransactionController extends Controller implements HasMiddleware
             $transaction = $this->transactionRepository->delete($id);
 
             return ResponseHelper::jsonResponse(true, 'Data Transaksi berhasil dihapus', new TransactionResource($transaction), 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
+    }
+
+    public function midtransCallback(Request $request)
+    {
+        \Midtrans\Config::$serverKey = config('midtrans.serverKey');
+        \Midtrans\Config::$isProduction = config('midtrans.isProduction');
+        \Midtrans\Config::$isSanitized = config('midtrans.isSanitized');
+        \Midtrans\Config::$is3ds = config('midtrans.is3ds');
+
+        try {
+            $notification = new \Midtrans\Notification();
+
+            $transactionStatus = $notification->transaction_status;
+            $paymentType = $notification->payment_type;
+            $orderId = $notification->order_id;
+            $fraudStatus = $notification->fraud_status;
+
+            $transaction = $this->transactionRepository->getByCode($orderId);
+
+            if (!$transaction) {
+                return ResponseHelper::jsonResponse(false, 'Transaksi tidak ditemukan', null, 404);
+            }
+
+            if ($transactionStatus == 'capture') {
+                if ($paymentType == 'credit_card') {
+                    if ($fraudStatus == 'challenge') {
+                        $transaction->payment_status = 'unpaid';
+                    } else {
+                        $transaction->payment_status = 'paid';
+                    }
+                }
+            } else if ($transactionStatus == 'settlement') {
+                $transaction->payment_status = 'paid';
+            } else if ($transactionStatus == 'pending') {
+                $transaction->payment_status = 'unpaid';
+            } else if ($transactionStatus == 'deny' || $transactionStatus == 'expire' || $transactionStatus == 'cancel') {
+                $transaction->payment_status = 'unpaid';
+            }
+
+            $transaction->save();
+
+            return ResponseHelper::jsonResponse(true, 'Status transaksi berhasil diperbarui', null, 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
+    }
+
+    public function simulatePayment(string $id)
+    {
+        try {
+            $transaction = $this->transactionRepository->getById($id);
+
+            if (!$transaction) {
+                return ResponseHelper::jsonResponse(false, 'Transaksi tidak ditemukan', null, 404);
+            }
+
+            $user = auth()->user();
+            if ($user->hasRole('store')) {
+                $store = $user->store;
+                if (!$store || $transaction->store_id !== $store->id) {
+                    return ResponseHelper::jsonResponse(false, 'Unauthorized', null, 403);
+                }
+            } elseif ($user->hasRole('buyer')) {
+                $buyer = $user->buyer;
+                if (!$buyer || $transaction->buyer_id !== $buyer->id) {
+                    return ResponseHelper::jsonResponse(false, 'Unauthorized', null, 403);
+                }
+            }
+
+            $transaction->payment_status = 'paid';
+            $transaction->save();
+
+            return ResponseHelper::jsonResponse(true, 'Simulasi pembayaran sukses', new TransactionResource($transaction), 200);
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }
