@@ -15,9 +15,19 @@ class ProductReviewResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'transaction' => new TransactionResource($this->transaction),
-            'rating' => $this->rating,
-            'review' => $this->review
+            'id' => $this->id,
+            'transaction_id' => $this->transaction_id,
+            'product_id' => $this->product_id,
+            'rating' => (int) $this->rating,
+            'review' => $this->review,
+            'photo' => $this->photo ? asset('storage/' . $this->photo) : null,
+            'created_at' => $this->created_at,
+            'buyer' => [
+                'name' => $this->transaction?->buyer?->user?->name ?? 'Pembeli',
+                'profile_picture' => $this->transaction?->buyer?->user?->profile_picture ? asset('storage/' . $this->transaction?->buyer?->user?->profile_picture) : null,
+            ],
+            'product' => new ProductResource($this->whenLoaded('product')),
+            'transaction' => new TransactionResource($this->whenLoaded('transaction')),
         ];
     }
 }

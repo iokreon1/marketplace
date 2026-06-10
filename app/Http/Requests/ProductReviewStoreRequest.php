@@ -19,7 +19,8 @@ class ProductReviewStoreRequest extends FormRequest
             'transaction_id' => 'required|string|exists:transactions,id',
             'product_id' => 'required|string|exists:products,id',
             'rating' => 'required|integer|min:1|max:5',
-            'review' => 'nullable|string'
+            'review' => 'nullable|string',
+            'photo' => 'nullable|image|max:2048'
         ];
     }
 
@@ -30,7 +31,8 @@ class ProductReviewStoreRequest extends FormRequest
             'transaction_id' => 'Transaksi',
             'product_id' => 'Produk',
             'rating' => 'Rating',
-            'review' => 'Review'
+            'review' => 'Review',
+            'photo' => 'Foto Ulasan'
         ];
     }
 }

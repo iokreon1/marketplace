@@ -20,6 +20,11 @@ class ProductReviewRepository implements ProductReviewRepositoryInterface
             $productReview->product_id = $data['product_id'];
             $productReview->rating = $data['rating'];
             $productReview->review = $data['review'];
+
+            if (isset($data['photo']) && $data['photo'] instanceof \Illuminate\Http\UploadedFile) {
+                $productReview->photo = $data['photo']->store('assets/review', 'public');
+            }
+
             $productReview->save();
 
             DB::commit();

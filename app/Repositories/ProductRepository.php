@@ -71,7 +71,7 @@ class ProductRepository implements ProductRepositoryInterface
     public function getById(
         string $id
     ) {
-        $query = Product::where('id', $id)->with(['store', 'productCategory', 'productImages', 'productReviews']);
+        $query = Product::where('id', $id)->with(['store', 'productCategory', 'productImages', 'productReviews.transaction.buyer.user']);
 
         return $query->first();
     }
@@ -79,7 +79,7 @@ class ProductRepository implements ProductRepositoryInterface
     public function getBySlug(
         string $slug
     ) {
-        $query = Product::where('slug', $slug)->with(['store', 'productCategory', 'productImages', 'productReviews']);
+        $query = Product::where('slug', $slug)->with(['store', 'productCategory', 'productImages', 'productReviews.transaction.buyer.user']);
 
         return $query->first();
     }
