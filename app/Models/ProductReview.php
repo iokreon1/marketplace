@@ -14,6 +14,7 @@ class ProductReview extends Model
         'product_id',
         'rating',
         'review',
+        'photo',
     ];
 
     public function transaction()
