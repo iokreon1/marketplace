@@ -17,8 +17,12 @@ class BuyerResource extends JsonResource
         return [
             'id' => $this->id,
             'user' => new UserResource($this->whenLoaded('user')),
-            'profile_picture' => asset('storage/' . $this->profile_picture),
-            'phone_number' => $this->phone_number
+            'profile_picture' => $this->profile_picture ? asset('storage/' . $this->profile_picture) : null,
+            'phone_number' => $this->phone_number,
+            'address_id' => $this->address_id,
+            'city' => $this->city,
+            'address' => $this->address,
+            'postal_code' => $this->postal_code,
         ];
     }
 }

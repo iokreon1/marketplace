@@ -14,6 +14,10 @@ class Buyer extends Model
         'user_id',
         'profile_picture',
         'phone_number',
+        'address_id',
+        'city',
+        'address',
+        'postal_code',
     ];
 
     public function scopeSearch($query, $search)

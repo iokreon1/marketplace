@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('me', [AuthController::class, 'me']);
     Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('profile/update', [AuthController::class, 'updateProfile']);
     Route::get('dashboard', [DashboardController::class, 'index']);
 
     Route::apiResource('user', UserController::class); // 'user' itu adalah nanti endpointnya

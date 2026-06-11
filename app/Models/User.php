@@ -57,6 +57,17 @@ class User extends Authenticatable
             ->Orwhere('email', 'like', '%' . $search . '%');
     }
 
+    public function getProfilePictureAttribute()
+    {
+        if ($this->hasRole('buyer') && $this->buyer) {
+            return $this->buyer->profile_picture;
+        }
+        if ($this->hasRole('store') && $this->store) {
+            return $this->store->logo;
+        }
+        return null;
+    }
+
     // satu user bisa memiliki satu toko
     public function store()
     {
