@@ -54,13 +54,15 @@ class TransactionController extends Controller implements HasMiddleware
     {
         $request = $request->validate([
             'search' => 'nullable|string',
-            'row_per_page' => 'required|integer'
+            'row_per_page' => 'required|integer',
+            'status' => 'nullable|string'
         ]);
 
         try {
             $transactions = $this->transactionRepository->getAllPaginated(
                 $request['search'] ?? null,
-                $request['row_per_page']
+                $request['row_per_page'],
+                $request['status'] ?? null
             );
 
             return ResponseHelper::jsonResponse(true, 'Data Transaksi berhasil diambil', PaginateResource::make($transactions, TransactionResource::class), 200);

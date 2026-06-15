@@ -7,12 +7,14 @@ interface TransactionRepositoryInterface
     public function getAll(
         ?string $search,
         ?int $limit,
-        bool $execute
+        bool $execute,
+        ?string $status = null
     );
 
     public function getAllPaginated(
         ?string $search,
-        ?int $rowPerPage
+        ?int $rowPerPage,
+        ?string $status = null
     );
 
     public function getById(

@@ -17,7 +17,8 @@ class TransactionRepository implements TransactionRepositoryInterface
     public function getAll(
         ?string $search,
         ?int $limit,
-        bool $execute
+        bool $execute,
+        ?string $status = null
     ) {
         $query = Transaction::query()->where(function ($query) use ($search) { 
             if ($search) { 
@@ -35,6 +36,16 @@ class TransactionRepository implements TransactionRepositoryInterface
             }
         }
 
+        if ($status) {
+            if ($status === 'berlangsung') {
+                $query->whereIn('delivery_status', ['pending', 'processing', 'delivering']);
+            } elseif ($status === 'berhasil') {
+                $query->where('delivery_status', 'completed');
+            } elseif ($status === 'gagal') {
+                $query->where('delivery_status', 'failed');
+            }
+        }
+
         if ($limit) {
             $query->take($limit);
         }
@@ -47,12 +58,14 @@ class TransactionRepository implements TransactionRepositoryInterface
 
     public function getAllPaginated(
         ?string $search, 
-        ?int $rowPerPage
+        ?int $rowPerPage,
+        ?string $status = null
     ) {
         $query = $this->getAll(
             $search,
             null,
-            false
+            false,
+            $status
         );
 
         return $query->paginate($rowPerPage);
@@ -96,11 +109,23 @@ class TransactionRepository implements TransactionRepositoryInterface
 
             $transactionDetails = [];
 
-            foreach ($data['products'] as $transactionDetail) {
+            foreach ($data['products'] as $item) {
+                $product = Product::find($item['product_id']);
+                if (!$product) {
+                    throw new Exception("Produk tidak ditemukan.");
+                }
+
+                if ($product->stock < $item['qty']) {
+                    throw new Exception("Stok produk '{$product->name}' tidak mencukupi.");
+                }
+
+                $product->stock -= $item['qty'];
+                $product->save();
+
                 $transactionDetail = $transactionDetailRepository->create([
                     'transaction_id' => $transaction->id,
-                    'product_id' => $transactionDetail['product_id'],
-                    'qty' => $transactionDetail['qty']
+                    'product_id' => $item['product_id'],
+                    'qty' => $item['qty']
                 ]);
 
                 $transactionDetails[] = $transactionDetail;

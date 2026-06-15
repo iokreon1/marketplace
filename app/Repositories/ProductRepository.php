@@ -31,7 +31,7 @@ class ProductRepository implements ProductRepositoryInterface
             if ($productCategoryId) {
                 $query->where('product_category_id', $productCategoryId);
             }
-        })->with(['productCategory', 'productImages', 'productReviews']);
+        })->with(['store', 'productCategory', 'productImages', 'productReviews']);
 
         if (auth()->check() && auth()->user()->hasRole('store')) {
             $store = auth()->user()->store;
