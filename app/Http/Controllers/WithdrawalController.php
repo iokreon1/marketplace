@@ -8,6 +8,7 @@ use App\Http\Requests\WithdrawalStoreRequest;
 use App\Http\Resources\PaginateResource;
 use App\Http\Resources\WithdrawalResource;
 use App\Interfaces\WithdrawalRepositoryInterface;
+use App\Models\Notification;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -80,6 +81,19 @@ class WithdrawalController extends Controller implements HasMiddleware
         try {
             $withdrawal = $this->withdrawalRepository->create($request);
 
+            $storeUser = $withdrawal->storeBalance && $withdrawal->storeBalance->store 
+                ? $withdrawal->storeBalance->store->user_id 
+                : null;
+            if ($storeUser) {
+                Notification::create([
+                    'user_id' => $storeUser,
+                    'title' => 'Pengajuan Penarikan Dana',
+                    'message' => 'Pengajuan penarikan dana sebesar Rp ' . number_format($withdrawal->amount, 0, ',', '.') . ' telah dikirim dan sedang menunggu persetujuan admin.',
+                    'type' => 'withdrawal',
+                    'is_read' => false
+                ]);
+            }
+
             return ResponseHelper::jsonResponse(true, 'Withdrawal berhasil ditambahkan', new WithdrawalResource($withdrawal), 201);
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
@@ -119,6 +133,19 @@ class WithdrawalController extends Controller implements HasMiddleware
                 $id,
                 $request['proof']
             );
+
+            $storeUser = $withdrawal->storeBalance && $withdrawal->storeBalance->store 
+                ? $withdrawal->storeBalance->store->user_id 
+                : null;
+            if ($storeUser) {
+                Notification::create([
+                    'user_id' => $storeUser,
+                    'title' => 'Penarikan Dana Disetujui',
+                    'message' => 'Pengajuan penarikan dana sebesar Rp ' . number_format($withdrawal->amount, 0, ',', '.') . ' telah disetujui oleh admin. Bukti transfer telah dilampirkan.',
+                    'type' => 'withdrawal',
+                    'is_read' => false
+                ]);
+            }
 
             return ResponseHelper::jsonResponse(true, 'Data withdrawal Berhasil disetujui', new WithdrawalResource($withdrawal), 200);
         } catch (\Exception $e) {

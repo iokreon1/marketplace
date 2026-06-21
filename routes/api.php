@@ -12,6 +12,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WithdrawalController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -55,6 +56,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('transaction/{id}/simulate-payment', [TransactionController::class, 'simulatePayment']);
 
     Route::post('product-review', [ProductReviewController::class, 'store']);
+
+    Route::get('notification', [NotificationController::class, 'index']);
+    Route::get('notification/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::post('notification/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('notification/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::delete('notification/{id}', [NotificationController::class, 'destroy']);
 });
 
 Route::get('product-category', [ProductCategoryController::class, 'index']);

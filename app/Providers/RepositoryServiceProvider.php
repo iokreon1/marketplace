@@ -27,6 +27,8 @@ use App\Interfaces\TransactionRepositoryInterface;
 use App\Repositories\ProductReviewRepository;
 use App\Repositories\TransactionDetailRepository;
 use App\Repositories\AuthRepository;
+use App\Interfaces\NotificationRepositoryInterface;
+use App\Repositories\NotificationRepository;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -47,6 +49,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(TransactionDetailRepositoryInterface::class, TransactionDetailRepository::class);
         $this->app->bind(ProductReviewRepositoryInterface::class, ProductReviewRepository::class);
         $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
+        $this->app->bind(NotificationRepositoryInterface::class, NotificationRepository::class);
     }
 
     /**

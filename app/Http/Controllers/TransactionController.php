@@ -9,6 +9,7 @@ use App\Http\Resources\PaginateResource;
 use App\Http\Resources\TransactionResource;
 use Illuminate\Http\Request;
 use App\Interfaces\TransactionRepositoryInterface;
+use App\Models\Notification;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
@@ -81,6 +82,27 @@ class TransactionController extends Controller implements HasMiddleware
 
         try {
             $transaction = $this->transactionRepository->create($request); 
+
+            // Create Notification for Buyer
+            Notification::create([
+                'user_id' => auth()->id(),
+                'title' => 'Pesanan Berhasil Dibuat',
+                'message' => 'Pesanan dengan kode #' . $transaction->code . ' berhasil dibuat. Silakan lakukan pembayaran.',
+                'type' => 'transaction',
+                'is_read' => false
+            ]);
+
+            // Create Notification for Seller/Store Owner
+            $store = \App\Models\Store::find($transaction->store_id);
+            if ($store) {
+                Notification::create([
+                    'user_id' => $store->user_id,
+                    'title' => 'Ada Pesanan Masuk',
+                    'message' => 'Toko Anda menerima pesanan baru dengan kode #' . $transaction->code . '. Menunggu pembayaran dari pembeli.',
+                    'type' => 'transaction',
+                    'is_read' => false
+                ]);
+            }
 
             return ResponseHelper::jsonResponse(true, 'Transaksi berhasil ditambahkan', new TransactionResource($transaction), 201);
         } catch (\Exception $e) {
@@ -155,7 +177,55 @@ class TransactionController extends Controller implements HasMiddleware
                 return ResponseHelper::jsonResponse(false, 'Unauthorized', null, 403);
             }
 
+            $oldStatus = $transaction->delivery_status;
+
             $transaction = $this->transactionRepository->updateStatus($id, $request);
+
+            if ($oldStatus !== $transaction->delivery_status) {
+                $buyerUser = $transaction->buyer ? $transaction->buyer->user_id : null;
+                $storeUser = $transaction->store ? $transaction->store->user_id : null;
+
+                if ($transaction->delivery_status === 'processing') {
+                    if ($buyerUser) {
+                        Notification::create([
+                            'user_id' => $buyerUser,
+                            'title' => 'Pesanan Sedang Diproses',
+                            'message' => 'Pesanan #' . $transaction->code . ' sedang diproses oleh penjual.',
+                            'type' => 'transaction',
+                            'is_read' => false
+                        ]);
+                    }
+                } elseif ($transaction->delivery_status === 'delivering') {
+                    if ($buyerUser) {
+                        Notification::create([
+                            'user_id' => $buyerUser,
+                            'title' => 'Pesanan Sedang Dikirim',
+                            'message' => 'Pesanan #' . $transaction->code . ' telah diserahkan ke kurir. No Resi: ' . ($transaction->tracking_number ?? '-'),
+                            'type' => 'transaction',
+                            'is_read' => false
+                        ]);
+                    }
+                } elseif ($transaction->delivery_status === 'completed') {
+                    if ($storeUser) {
+                        Notification::create([
+                            'user_id' => $storeUser,
+                            'title' => 'Pesanan Selesai',
+                            'message' => 'Pesanan #' . $transaction->code . ' telah diterima oleh pembeli. Saldo toko Anda telah ditambahkan.',
+                            'type' => 'transaction',
+                            'is_read' => false
+                        ]);
+                    }
+                    if ($buyerUser) {
+                        Notification::create([
+                            'user_id' => $buyerUser,
+                            'title' => 'Pesanan Selesai',
+                            'message' => 'Terima kasih telah berbelanja! Pesanan #' . $transaction->code . ' telah selesai.',
+                            'type' => 'transaction',
+                            'is_read' => false
+                        ]);
+                    }
+                }
+            }
 
             return ResponseHelper::jsonResponse(true, 'Data transaksi berhasil diperbarui', new TransactionResource($transaction), 200);
         } catch (\Exception $e) {
@@ -204,6 +274,8 @@ class TransactionController extends Controller implements HasMiddleware
                 return ResponseHelper::jsonResponse(false, 'Transaksi tidak ditemukan', null, 404);
             }
 
+            $oldStatus = $transaction->payment_status;
+
             if ($transactionStatus == 'capture') {
                 if ($paymentType == 'credit_card') {
                     if ($fraudStatus == 'challenge') {
@@ -221,6 +293,30 @@ class TransactionController extends Controller implements HasMiddleware
             }
 
             $transaction->save();
+
+            if ($oldStatus !== 'paid' && $transaction->payment_status === 'paid') {
+                $buyerUser = $transaction->buyer ? $transaction->buyer->user_id : null;
+                if ($buyerUser) {
+                    Notification::create([
+                        'user_id' => $buyerUser,
+                        'title' => 'Pembayaran Berhasil',
+                        'message' => 'Pembayaran untuk pesanan #' . $transaction->code . ' telah berhasil diterima via Midtrans. Pesanan Anda sedang diproses.',
+                        'type' => 'transaction',
+                        'is_read' => false
+                    ]);
+                }
+
+                $storeUser = $transaction->store ? $transaction->store->user_id : null;
+                if ($storeUser) {
+                    Notification::create([
+                        'user_id' => $storeUser,
+                        'title' => 'Pesanan Telah Dibayar',
+                        'message' => 'Pesanan #' . $transaction->code . ' telah dibayar oleh pembeli. Silakan proses pengiriman produk.',
+                        'type' => 'transaction',
+                        'is_read' => false
+                    ]);
+                }
+            }
 
             return ResponseHelper::jsonResponse(true, 'Status transaksi berhasil diperbarui', null, 200);
         } catch (\Exception $e) {
@@ -250,8 +346,33 @@ class TransactionController extends Controller implements HasMiddleware
                 }
             }
 
+            $oldStatus = $transaction->payment_status;
             $transaction->payment_status = 'paid';
             $transaction->save();
+
+            if ($oldStatus !== 'paid') {
+                $buyerUser = $transaction->buyer ? $transaction->buyer->user_id : null;
+                if ($buyerUser) {
+                    Notification::create([
+                        'user_id' => $buyerUser,
+                        'title' => 'Pembayaran Berhasil',
+                        'message' => 'Pembayaran untuk pesanan #' . $transaction->code . ' telah berhasil diterima. Pesanan Anda sedang diproses.',
+                        'type' => 'transaction',
+                        'is_read' => false
+                    ]);
+                }
+
+                $storeUser = $transaction->store ? $transaction->store->user_id : null;
+                if ($storeUser) {
+                    Notification::create([
+                        'user_id' => $storeUser,
+                        'title' => 'Pesanan Telah Dibayar',
+                        'message' => 'Pesanan #' . $transaction->code . ' telah dibayar oleh pembeli. Silakan proses pengiriman produk.',
+                        'type' => 'transaction',
+                        'is_read' => false
+                    ]);
+                }
+            }
 
             return ResponseHelper::jsonResponse(true, 'Simulasi pembayaran sukses', new TransactionResource($transaction), 200);
         } catch (\Exception $e) {
